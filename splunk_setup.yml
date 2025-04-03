@@ -1,0 +1,55 @@
+---
+- name: Install and Configure Splunk
+  hosts: splunk
+  become: yes
+  tasks:
+    - name: Install required packages
+      yum:
+        name:
+          - wget
+          - tar
+        state: present
+
+    - name: Create Splunk user
+      user:
+        name: splunk
+        state: present
+        shell: /bin/bash
+        create_home: yes
+        home: /home/splunk
+
+    - name: Create /opt/splunk directory
+      file:
+        path: /opt/splunk
+        state: directory
+        owner: splunk
+        group: splunk
+        mode: '0755'
+
+    - name: Download Splunk
+      get_url:
+        url: "https://download.splunk.com/products/splunk/releases/9.4.1/linux/splunk-9.4.1-e3bdab203ac8-linux-amd64.tgz"
+        dest: "/home/splunk/splunk-9.4.1-linux-amd64.tgz"
+        mode: '0644'
+
+    - name: Extract Splunk to /opt
+      ansible.builtin.unarchive:
+        src: "/home/splunk/splunk-9.4.1-linux-amd64.tgz"
+        dest: "/opt/"
+        remote_src: yes
+        owner: splunk
+        group: splunk
+
+    - name: Start Splunk for the first time (as splunk user)
+      become: yes
+      become_user: splunk
+      command: "/opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd 'admin123'"
+
+    - name: Stop Splunk before enabling boot-start
+      command: "/opt/splunk/bin/splunk stop"
+
+    - name: Enable Splunk to start on boot
+      command: "/opt/splunk/bin/splunk enable boot-start -user splunk"
+
+    - name: Start Splunk service
+      command: "/opt/splunk/bin/splunk start"
