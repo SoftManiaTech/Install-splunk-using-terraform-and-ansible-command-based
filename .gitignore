@@ -9,7 +9,7 @@
 crash.log
 crash.*.log
 *.pem
-
+*.ini
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
