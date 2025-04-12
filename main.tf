@@ -86,8 +86,3 @@ ${aws_instance.splunk_server.public_ip} ansible_user=ec2-user
 EOT
   filename = "${path.module}/inventory.ini"
 }
-
-# Output Public IP
-output "public_ip" {
-  value = aws_instance.splunk_server.public_ip
-}
